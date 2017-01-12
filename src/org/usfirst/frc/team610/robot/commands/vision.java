@@ -49,6 +49,7 @@ public class vision extends Command {
     	if(!OI.getInstance().getDriver().getRawButton(LogitechF310Constants.BTN_A)){
     		isPressed = false;
     	}
+    	// Test
     	
     	double speed = pid.getValue(vision.getValue(), 0);
     	
