@@ -1,7 +1,6 @@
 
 package org.usfirst.frc.team610.robot;
 
-import org.usfirst.frc.team610.robot.commands.encoder;
 import org.usfirst.frc.team610.robot.commands.vision;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -12,14 +11,11 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 public class Robot extends IterativeRobot {
 
 	public static OI oi;
-	private Command enc;
-	private Command gyro;
 	private Command vision;
 
 
     public void robotInit() {
 		oi = OI.getInstance();
-       enc = new encoder();
        vision = new vision();      
     }
 	
