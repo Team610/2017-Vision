@@ -2,88 +2,92 @@ from networktables import NetworkTables
 import cv2
 import numpy as np
 
-NetworkTables.initialize(server='10.6.13.59')
+NetworkTables.initialize(server='10.6.13.59') #change to roborio IP if it does not work
 
-table = NetworkTables.getTable('datatable')
+table = NetworkTables.getTable('datatable') #whatever the name of the table we use is
 
-camera_feed = cv2.VideoCapture(0)
+camera_feed = cv2.VideoCapture(0) #cam number will change depending on order of cams plugged in at boot
+#camera_feed.set(cv2.CAP_PROP_CONTRAST, -100)
 
 
-xCentroid = 0
+xCentroid = 0 
 xCentroidOne = 0
 xCentroidTwo = 0
 xCentroidThree = 0
-yCentroid = 0
-yCentroidOne = 0
-yCentroidTwo = 0
-yCentroidThree = 0
 counter = 0
 
 
 while(1):
-    _,frame = camera_feed.read()
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    #camera_feed.set(15,-10)
+    #print camera_feed.get(15)
+    _,frame = camera_feed.read() #single frame from cam
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) #convert frame to HSV 
 
-    lowerT = np.array([33,1,239])
-    upperT = np.array([116,206,255])
+    lowerT = np.array([132,59,123]) #lower threshold (Hue,Sat,Val)
+    upperT = np.array([179,224,255]) #upper threshold
 
-    mask = cv2.inRange(hsv, lowerT, upperT)
+    mask = cv2.inRange(hsv, lowerT, upperT) #filters the frame based on hsv threshold
+    #Smoothes image (probably not needed for this)
+    #element = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
+    #mask = cv2.erode(mask,element, iterations=2) 
+    #mask = cv2.dilate(mask,element,iterations=2)
+    #mask = cv2.erode(mask,element)
 
-    element = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
-    mask = cv2.erode(mask,element, iterations=2)
-    mask = cv2.dilate(mask,element,iterations=2)
-    mask = cv2.erode(mask,element)
-
-    _,contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    maximumArea = 50
+    _,contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) #All contours
+    maximumArea = 0 
     bestContour = None
     secondBestContour = None
-    for contour in contours:
-        currentArea = cv2.contourArea(contour)
-        x,y,w,h = cv2.boundingRect(contour)
-        if currentArea > maximumArea:
-            if x+x+w>y+y+h:
-                secondBestContour = bestContour
-                bestContour = contour
-                maximumArea = currentArea
+    #i = 0
+    for contour in contours: #iterates through all contours
+        #cnt = contours[i]
+        #i = i+1
+        #moment = cv2.moments(cnt)
+        (x,y),radius = cv2.minEnclosingCircle(contour) #tries a circle around the blob
+        circArea = 3.14*radius*radius #circle area
+        currentArea = cv2.contourArea(contour) #area of the blob
+        x,y,w,h = cv2.boundingRect(contour) #tries a rectangle around the blob
+        rectArea = 1.0*h*w #rectangle area
+        if rectArea - currentArea <= circArea - currentArea: #rectangle should be closer to blob area than circle area
+            if currentArea > maximumArea and currentArea > 300: #if it's the new biggest blob and the size is over 300
+                #if w > h: #oriented horizontally (not needed anymore)
+                    secondBestContour = bestContour #old biggest contour
+                    bestContour = contour #current biggest contour
+                    maximumArea = currentArea #area of current biggest contour
 
-    if bestContour is not None:
-        x,y,w,h = cv2.boundingRect(bestContour)
-        #cv2.rectangle(frame, (x,y),(x+w,y+h), (0,0,255), 3)
-       # if counter == 0:
-        #    xCentroidOne = (x+x+w)/2
-         #   yCentroidOne = (y+y+h)/2
-       # elif counter == 1:
-        #    xCentroidTwo = (x+x+w)/2
-         #   yCentroidTwo = (y+y+h)/2
-       # elif counter == 2:
-        #    xCentroidThree = (x+x+w)/2
-         #   yCentroidThree = (y+y+h)/2
-        
-       # xCentroid = (xCentroidOne+xCentroidTwo+xCentroidThree)/3
-       # yCentroid = (yCentroidOne+yCentroidTwo+yCentroidThree)/3
-	#counter = (counter + 1) % 2
-	_, width = frame.shape[:2]
-	
-	xCentroid = (x+x+w)/2
-
-        xCentroid = xCentroid - width/2
+    if bestContour is not None: #if best contour has a value
+        x,y,w,h = cv2.boundingRect(bestContour) #rectangle
+        cv2.rectangle(frame, (x,y),(x+w,y+h), (0,0,255), 3) #draws the rectangle over the colour image
+        cnt = bestContour #for moments
+        moment = cv2.moments(cnt) #creates a moment
+        #Rolling average with past two values to reduce impact of outliers and smooth data output
+        if counter == 0:
+            xCentroidOne = int(moment['m10']/moment['m00']) #Centroid calculation
+            counter = counter + 1
+        elif counter == 1:
+            xCentroidTwo = int(moment['m10']/moment['m00']) 
+            counter = counter + 1
+        elif counter == 2:
+            xCentroidThree = int(moment['m10']/moment['m00'])
+            counter = 0
+        xCentroid = (xCentroidOne+xCentroidTwo+xCentroidThree)/3
+        _,frameW = frame.shape[:2]
+        xCentroid = xCentroid - (frameW/2) #distance from the center
         table.putNumber("xValue",xCentroid)
-        table.putNumber("detected",1)
         table.putNumber("blobWidth",w)
-	table.putNumber("blobHeight",h)
+        table.putNumber("blobHeight",h)
+        table.putNumber("detected",1)
         print xCentroid
     else:
         table.putNumber("detected", 0)
-       # print 'not detected'
+        print 'not detected'
 
-    #cv2.imshow('frame',frame)
+    cv2.imshow('frame',frame) #displays image (comment out on pi)
     
-    #cv2.imshow('mask',mask)
+    cv2.imshow('mask',mask) #comment out on pi but it's good for debugging
     
-    k = cv2.waitKey(5) & 0xFF
+    k = cv2.waitKey(5) & 0xFF #on computer esc kills it
     if k == 27:
         break
 
 
-cv2.destroyAllWindows() 
+cv2.destroyAllWindows() #not needed on pi
