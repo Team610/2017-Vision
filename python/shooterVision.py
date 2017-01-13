@@ -11,6 +11,7 @@ camera_feed = cv2.VideoCapture(0) #cam number will change depending on order of 
 
 xCentroids = [0,0,0,0]
 counter = 0
+detected = False
 
 while(1):
     #camera_feed.set(15,-10)
@@ -21,7 +22,12 @@ while(1):
     lowerT = np.array([132,59,123]) #lower threshold (Hue,Sat,Val)
     upperT = np.array([179,224,255]) #upper threshold
 
+    #hsv = cv2.fastNlMeansDenoisingColored(hsv,None,10,10,7,21)
+
     mask = cv2.inRange(hsv, lowerT, upperT) #filters the frame based on hsv threshold
+    
+    #mask = cv2.fastNlMeansDenoising(mask,None,5,21,7)
+
     #Smoothes image (probably not needed for this)
     #element = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
     #mask = cv2.erode(mask,element, iterations=2) 
@@ -34,9 +40,6 @@ while(1):
     secondBestContour = None
     #i = 0
     for contour in contours: #iterates through all contours
-        #cnt = contours[i]
-        #i = i+1
-        #moment = cv2.moments(cnt)
         (x,y),radius = cv2.minEnclosingCircle(contour) #tries a circle around the blob
         circArea = 3.14*radius*radius #circle area
         currentArea = cv2.contourArea(contour) #area of the blob
@@ -50,6 +53,7 @@ while(1):
                     maximumArea = currentArea #area of current biggest contour
 
     if bestContour is not None: #if best contour has a value
+        detected = True
         x,y,w,h = cv2.boundingRect(bestContour) #rectangle
         cv2.rectangle(frame, (x,y),(x+w,y+h), (0,0,255), 3) #draws the rectangle over the colour image
         cnt = bestContour #for moments
@@ -57,17 +61,21 @@ while(1):
         #Rolling average with past two values to reduce impact of outliers and smooth data output
         xCentroids[counter] = int(moment['m10']/moment['m00'])
         counter = counter + 1
-        xCentroids[4] = (xCentroids[1]+xCentroids[2]+xCentroids[3])/3
+        if counter == 2:
+            counter = 0
+        xCentroids[3] = (xCentroids[0]+xCentroids[1]+xCentroids[2])/3
         _,frameW = frame.shape[:2]
-        xCentroids[4] = xCentroids[4] - (frameW/2) #distance from the center
-        table.putNumber("xValue",xCentroids[4])
+        xCentroids[3] = xCentroids[3] - (frameW/2) #distance from the center
+        table.putNumber("xValue",xCentroids[3])
         table.putNumber("blobWidth",w)
         table.putNumber("blobHeight",h)
         table.putNumber("detected",1)
-        print xCentroid
+        print xCentroids[3]
     else:
-        table.putNumber("detected", 0)
-        print 'not detected'
+        if detected:
+            table.putNumber("detected", 0)
+            detected = False
+            print 'not detected'
 
     cv2.imshow('frame',frame) #displays image (comment out on pi)
     
