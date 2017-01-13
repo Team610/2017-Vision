@@ -9,7 +9,7 @@ table = NetworkTables.getTable('datatable') #whatever the name of the table we u
 camera_feed = cv2.VideoCapture(0) #cam number will change depending on order of cams plugged in at boot
 #camera_feed.set(cv2.CAP_PROP_CONTRAST, -100)
 
-xCentroids = [0,0,0,0]
+xCentroids = [0,0,0,0,0]
 counter = 0
 detected = False
 
@@ -17,7 +17,10 @@ while(1):
     #camera_feed.set(15,-10)
     #print camera_feed.get(15)
     _,frame = camera_feed.read() #single frame from cam
+    frame = cv2.GaussianBlur(frame,(5,5),0)
+
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) #convert frame to HSV 
+    hsv = cv2.GaussianBlur(hsv,(5,5),0)
 
     lowerT = np.array([132,59,123]) #lower threshold (Hue,Sat,Val)
     upperT = np.array([179,224,255]) #upper threshold
@@ -26,7 +29,7 @@ while(1):
 
     mask = cv2.inRange(hsv, lowerT, upperT) #filters the frame based on hsv threshold
     
-    #mask = cv2.fastNlMeansDenoising(mask,None,5,21,7)
+    mask = cv2.GaussianBlur(mask,(5,5),0)
 
     #Smoothes image (probably not needed for this)
     #element = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
@@ -61,16 +64,16 @@ while(1):
         #Rolling average with past two values to reduce impact of outliers and smooth data output
         xCentroids[counter] = int(moment['m10']/moment['m00'])
         counter = counter + 1
-        if counter == 2:
+        if counter == 3:
             counter = 0
-        xCentroids[3] = (xCentroids[0]+xCentroids[1]+xCentroids[2])/3
+        xCentroids[4] = (xCentroids[0]*1.0+xCentroids[1]+xCentroids[2]+xCentroids[3])/4
         _,frameW = frame.shape[:2]
-        xCentroids[3] = xCentroids[3] - (frameW/2) #distance from the center
-        table.putNumber("xValue",xCentroids[3])
+        xCentroids[4] = xCentroids[4] - (frameW/2) #distance from the center
+        table.putNumber("xValue",xCentroids[4])
         table.putNumber("blobWidth",w)
         table.putNumber("blobHeight",h)
         table.putNumber("detected",1)
-        print xCentroids[3]
+        print xCentroids[4]
     else:
         if detected:
             table.putNumber("detected", 0)
