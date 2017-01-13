@@ -9,13 +9,8 @@ table = NetworkTables.getTable('datatable') #whatever the name of the table we u
 camera_feed = cv2.VideoCapture(0) #cam number will change depending on order of cams plugged in at boot
 #camera_feed.set(cv2.CAP_PROP_CONTRAST, -100)
 
-
-xCentroid = 0 
-xCentroidOne = 0
-xCentroidTwo = 0
-xCentroidThree = 0
+xCentroids = [0,0,0,0]
 counter = 0
-
 
 while(1):
     #camera_feed.set(15,-10)
@@ -60,19 +55,12 @@ while(1):
         cnt = bestContour #for moments
         moment = cv2.moments(cnt) #creates a moment
         #Rolling average with past two values to reduce impact of outliers and smooth data output
-        if counter == 0:
-            xCentroidOne = int(moment['m10']/moment['m00']) #Centroid calculation
-            counter = counter + 1
-        elif counter == 1:
-            xCentroidTwo = int(moment['m10']/moment['m00']) 
-            counter = counter + 1
-        elif counter == 2:
-            xCentroidThree = int(moment['m10']/moment['m00'])
-            counter = 0
-        xCentroid = (xCentroidOne+xCentroidTwo+xCentroidThree)/3
+        xCentroids[counter] = int(moment['m10']/moment['m00'])
+        counter = counter + 1
+        xCentroids[4] = (xCentroids[1]+xCentroids[2]+xCentroids[3])/3
         _,frameW = frame.shape[:2]
-        xCentroid = xCentroid - (frameW/2) #distance from the center
-        table.putNumber("xValue",xCentroid)
+        xCentroids[4] = xCentroids[4] - (frameW/2) #distance from the center
+        table.putNumber("xValue",xCentroids[4])
         table.putNumber("blobWidth",w)
         table.putNumber("blobHeight",h)
         table.putNumber("detected",1)
