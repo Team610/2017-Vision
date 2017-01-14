@@ -1,7 +1,7 @@
 
 package org.usfirst.frc.team610.robot;
 
-import org.usfirst.frc.team610.robot.commands.vision;
+import org.usfirst.frc.team610.robot.commands.VisionTrack;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Command;
@@ -16,7 +16,7 @@ public class Robot extends IterativeRobot {
 
     public void robotInit() {
 		oi = OI.getInstance();
-       vision = new vision();      
+       vision = new VisionTrack();      
     }
 	
     public void disabledInit(){
