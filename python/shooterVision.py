@@ -2,7 +2,7 @@ from networktables import NetworkTables
 import cv2
 import numpy as np
 
-NetworkTables.initialize(server='10.6.13.59') #change to roborio IP if it does not work
+NetworkTables.initialize(server='roboRIO-610-FRC.local') #change to roborio IP if it does not work
 
 table = NetworkTables.getTable('datatable') #whatever the name of the table we use is
 
@@ -17,10 +17,10 @@ while(1):
     camera_feed.set(cv2.CAP_PROP_CONTRAST,-1)
     #print camera_feed.get(15)
     _,frame = camera_feed.read() #single frame from cam
-    frame = cv2.GaussianBlur(frame,(5,5),0)
+    #frame = cv2.GaussianBlur(frame,(5,5),0)
 
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) #convert frame to HSV 
-    hsv = cv2.GaussianBlur(hsv,(5,5),0)
+    #hsv = cv2.GaussianBlur(hsv,(5,5),0)
 
     lowerT = np.array([34,2,195]) #lower threshold (Hue,Sat,Val)
     upperT = np.array([179,226,255]) #upper threshold
@@ -29,7 +29,7 @@ while(1):
 
     mask = cv2.inRange(hsv, lowerT, upperT) #filters the frame based on hsv threshold
     
-    mask = cv2.GaussianBlur(mask,(5,5),0)
+    #mask = cv2.GaussianBlur(mask,(5,5),0)
 
     #Smoothes image (probably not needed for this)
     #element = cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
