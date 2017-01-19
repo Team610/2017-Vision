@@ -1,46 +1,43 @@
 package org.usfirst.frc.team610.robot.commands;
 
-import java.io.IOException;
-
 import org.sixten.chareslib.PID;
 import org.usfirst.frc.team610.robot.constants.PIDConstants;
-import org.usfirst.frc.team610.robot.subsystems.Vision;
+import org.usfirst.frc.team610.robot.subsystems.Serial;
 
 import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
  */
-public class VisionTrack extends Command {
+public class SerialTest extends Command {
 	private PID pid;
 	private double target;
 	private Preferences prefs;
-	private Vision vision;
+	private Serial port;
 	boolean isPressed;
 
-	public VisionTrack() {
+	public SerialTest() {
 		// Use requires() here to declare subsystem dependencies
 		// eg. requires(chassis);
-		pid = new PID(PIDConstants.VISION_P, 0.0, PIDConstants.VISION_D);
 		prefs = Preferences.getInstance();
-		vision = Vision.getInstance();
+		port = Serial.getInstance(SerialPort.Port.kOnboard);
+		
 		isPressed = false;
 
 	}
 
 	// Called just before this Command runs the first time
 	protected void initialize() {
-		target = 0;
-		pid.updatePID(PIDConstants.VISION_P, 0.0, PIDConstants.VISION_D);
 	}
 
 	// Called repeatedly when this Command is scheduled to run
 	protected void execute() {
 
-		SmartDashboard.putString("Serial Output", vision.getValue());
-		System.out.println("Serial Output: " + vision.getValue());
+		SmartDashboard.putString("Serial Output", port.getValue());
+		System.out.println("Serial Output: " + port.getValue());
 
 	}
 
