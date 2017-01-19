@@ -10,6 +10,7 @@ import org.spectrum3847.RIOdroid.RIOadb;
 import org.spectrum3847.RIOdroid.RIOdroid;
 
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -37,42 +38,13 @@ public class Vision extends Subsystem {
 	private Vision() {
     	table = NetworkTable.getTable("datatable");
     	motor = new Talon(0);
+    	port = new SerialPort(115200, Port.kOnboard);
 	}
 	
-	public void startADB(){
-
-		RIOdroid.initUSB();
-		RIOadb.init();
-		Timer.delay(1);
-		RIOadb.clearNetworkPorts();
-		Timer.delay(1);
-		RIOadb.forward(8080, 3800);
-		try {
-		    serverSocket = create(new int[] {3800});
-		    clientSocket = serverSocket.accept();
-		} catch (IOException ex) {
-		    System.err.println("no available ports");
-		}
-		
+	public String getValue(){
+		return port.readString();
 	}
 	
-	public ServerSocket create(int[] ports) throws IOException {
-	    for (int port : ports) {
-	        try {
-	            return new ServerSocket(port);
-	        } catch (IOException ex) {
-	            continue; // try next port
-	        }
-	    }
-
-	    // if the program gets here, no port in the range was found
-	    throw new IOException("no free port found");
-	}
-	
-	public String getValue() throws IOException{
-		BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-		return in.readLine();
-	}
 
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.

@@ -34,21 +34,13 @@ public class VisionTrack extends Command {
 	protected void initialize() {
 		target = 0;
 		pid.updatePID(PIDConstants.VISION_P, 0.0, PIDConstants.VISION_D);
-		vision.startADB();
-
 	}
 
 	// Called repeatedly when this Command is scheduled to run
 	protected void execute() {
 
-		try {
-			SmartDashboard.putString("Sick.Stream", vision.getValue());
-			System.out.println("yeas");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("naj");
-			e.printStackTrace();
-		}
+		SmartDashboard.putString("Serial Output", vision.getValue());
+		System.out.println("Serial Output: " + vision.getValue());
 
 	}
 
