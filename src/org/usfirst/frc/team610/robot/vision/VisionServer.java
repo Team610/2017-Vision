@@ -2,16 +2,11 @@ package org.usfirst.frc.team610.robot.vision;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import org.spectrum3847.RIOdroid.RIOadb;
-import org.usfirst.frc.team610.robot.vision.messages.CameraModeMessage;
-import org.usfirst.frc.team610.robot.vision.messages.HeartbeatMessage;
-import org.usfirst.frc.team610.robot.vision.messages.VisionMessage;
 
 // Code taken from team 254 github
 
@@ -27,9 +22,7 @@ public class VisionServer implements Runnable {
 	private double value;
 
 	private ArrayList<ServerThread> serverThreads = new ArrayList<>();
-	private ArrayList<VisionUpdateReceiver> receivers = new ArrayList<>();
 
-	VisionUpdate mostRecentUpdate = null;
 
 	private static final int port = 3000;
 
@@ -55,42 +48,6 @@ public class VisionServer implements Runnable {
 			this.socket = socket;
 		}
 
-		// Taking a message, converting it to json ending with a newline, and
-		// sending
-		public void send(VisionMessage message) {
-			String toSend = message.toJson() + "\n";
-			if (socket != null && socket.isConnected()) {
-				try {
-					OutputStream os = socket.getOutputStream();
-					os.write(toSend.getBytes());
-				} catch (IOException e) {
-					System.err.println("VisionServer: Could not send data to socket");
-				}
-			}
-		}
-
-		// Takes a message, sends it back if heartbeat, sends to recievers
-		// otherwise
-		public void handleMessage(VisionMessage message, double timestamp) {
-			if ("targets".equals(message.getType())) {
-				System.out.println("Received vision message");
-				VisionUpdate update = VisionUpdate.generateFromJsonString(timestamp, message.getMessage());
-				receivers.removeAll(Collections.singleton(null));
-				if (update.isValid()) {
-					System.out.println("Vision update valid");
-					for (VisionUpdateReceiver receiver : receivers) {
-						System.out.println("Sent to receiver");
-						receiver.gotUpdate(update);
-					}
-				}
-
-				mostRecentUpdate = update;
-			}
-			if ("heartbeat".equals(message.getType())) {
-				send(HeartbeatMessage.getInstance());
-			}
-		}
-
 		public boolean isAlive() {
 			return socket != null && socket.isConnected() && !socket.isClosed();
 		}
@@ -111,7 +68,6 @@ public class VisionServer implements Runnable {
 					lastMessageReceivedTime = timestamp;
 					String messageRaw = new String(buffer, 0, read);
 					rawInput = messageRaw;
-
 				}
 				System.out.println("Socket disconnected");
 			} catch (IOException e) {
@@ -169,39 +125,10 @@ public class VisionServer implements Runnable {
 	 * 
 	 * @see VisionUpdate
 	 */
-	public void addVisionUpdateReceiver(VisionUpdateReceiver receiver) {
-		if (!receivers.contains(receiver)) {
-			receivers.add(receiver);
-		}
-	}
 
-	public void removeVisionUpdateReceiver(VisionUpdateReceiver receiver) {
-		if (receivers.contains(receiver)) {
-			receivers.remove(receiver);
-		}
-	}
 
-	public VisionUpdate getMostRecentUpdate() {
-		if (mostRecentUpdate == null) {
-			System.out.println("No updates available");
-		}
 
-		return mostRecentUpdate;
-	}
-
-	public void setCameraFront() {
-		CameraModeMessage frontMessage = CameraModeMessage.getFrontFacingMessage();
-		ServerThread mostRecentThread = serverThreads.get(serverThreads.size() - 1);
-
-		mostRecentThread.send(frontMessage);
-	}
-
-	public void setCameraRear() {
-		CameraModeMessage rearMessage = CameraModeMessage.getRearFacingMessage();
-		ServerThread mostRecentThread = serverThreads.get(serverThreads.size() - 1);
-
-		mostRecentThread.send(rearMessage);
-	}
+	
 
 	@Override
 	public void run() {
