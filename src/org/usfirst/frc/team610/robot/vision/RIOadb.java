@@ -1,7 +1,9 @@
-package org.spectrum3847.RIOdroid;
+package org.usfirst.frc.team610.robot.vision;
 
 import java.io.IOException;
 import java.util.List;
+
+import org.spectrum3847.RIOdroid.RIOdroid;
 
 import se.vidstige.jadb.JadbConnection;
 import se.vidstige.jadb.JadbDevice;
@@ -12,7 +14,7 @@ public class RIOadb {
 	private static JadbConnection m_jadb = null;
     private static List<JadbDevice> m_devices = null;
     private static JadbDevice m_currentDevice = null;
-    private static int m_nextLocalHostPort = 3800;
+    private static int m_nextLocalHostPort = 3000;
 	
     private RIOadb() {
 		//STATIC CLASS CAN'T BE CALLED
@@ -29,7 +31,7 @@ public class RIOadb {
 			m_jadb = new JadbConnection();
 		} catch (IOException e) {
 	        System.out.println("Failed at connection");
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		setCurrentDevice();
 	}
@@ -66,6 +68,7 @@ public class RIOadb {
 	 */
 	public static void setCurrentDevice(){
 		getDevicesList();
+		
 		if (m_devices != null){
 			setCurrentDevice(m_devices.get(0));
 		}

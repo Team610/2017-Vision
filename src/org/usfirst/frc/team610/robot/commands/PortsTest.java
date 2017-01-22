@@ -2,6 +2,7 @@ package org.usfirst.frc.team610.robot.commands;
 
 import java.io.IOException;
 
+import org.usfirst.frc.team610.robot.subsystems.ADBBridge;
 import org.usfirst.frc.team610.robot.subsystems.Ports;
 
 import edu.wpi.first.wpilibj.command.Command;
@@ -12,7 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class PortsTest extends Command {
 
-	Ports port;
+	ADBBridge port;
 	
     public PortsTest() {
     	
@@ -22,19 +23,12 @@ public class PortsTest extends Command {
 
     // Called just before this Command runs the first time
     protected void initialize() {
-    	port = Ports.getInstance(8080);
+    	port = ADBBridge.getInstance(3000);
     }
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	try {
-			SmartDashboard.putNumber("Data", port.getInput());
-			System.out.println(port.getInput());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println(e + " Cannot get data");
-		}
-    	
+    	port.run();
     }
 
     // Make this return true when this Command no longer needs to run execute()

@@ -39,9 +39,6 @@ public class Ports extends Subsystem {
 		input = new DataInputStream(clientSocket.getInputStream());
 	}
 	
-	public double getInput() throws IOException{
-		return input.readDouble();
-	}
 	
 	
     public void initDefaultCommand() {

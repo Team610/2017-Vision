@@ -23,7 +23,7 @@ public class SerialTest extends Command {
 		// Use requires() here to declare subsystem dependencies
 		// eg. requires(chassis);
 		prefs = Preferences.getInstance();
-		port = Serial.getInstance(SerialPort.Port.kOnboard);
+		port = Serial.getInstance();
 		
 		isPressed = false;
 

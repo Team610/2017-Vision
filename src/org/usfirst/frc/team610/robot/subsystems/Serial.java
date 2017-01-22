@@ -12,16 +12,16 @@ public class Serial extends Subsystem {
 	private static Serial instance;
 	private SerialPort port;
 
-	public static Serial getInstance(Port port) {
+	public static Serial getInstance() {
 		if (instance == null) {
-			instance = new Serial(port);
+			instance = new Serial();
 		}
 		return instance;
 	}
 	
 
-	private Serial(Port port) {
-		this.port = new SerialPort(115200, port);
+	private Serial() {
+		port = new SerialPort(115200,Port.kMXP);
 		
 	}
 
