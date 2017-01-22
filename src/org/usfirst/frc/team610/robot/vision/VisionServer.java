@@ -20,6 +20,7 @@ public class VisionServer implements Runnable {
 	private Socket p;
 	private String rawInput;
 	private double value;
+	private boolean startInput = false;
 
 	private ArrayList<ServerThread> serverThreads = new ArrayList<>();
 
@@ -64,8 +65,7 @@ public class VisionServer implements Runnable {
 				int read;
 				// Continue while connected and have messages to read
 				while (socket.isConnected() && (read = is.read(buffer)) != -1) {
-					double timestamp = getTimestamp();
-					lastMessageReceivedTime = timestamp;
+					startInput = true;
 					String messageRaw = new String(buffer, 0, read);
 					rawInput = messageRaw;
 				}
@@ -104,10 +104,14 @@ public class VisionServer implements Runnable {
 	}
 
 	public String getRawInput() {
-		if(serverThreads.size() == 0){
-			return "Socket Not Connected";
+		if(startInput){
+			if(serverThreads.size() == 0){
+				return "Socket Not Connected";
+			}
+			return rawInput;
+		} else {
+			return "lmao";
 		}
-		return rawInput;
 	}
 
 	public double getDouble() {
