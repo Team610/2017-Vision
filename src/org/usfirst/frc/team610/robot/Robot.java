@@ -4,6 +4,7 @@ package org.usfirst.frc.team610.robot;
 import java.util.logging.Logger;
 
 import org.spectrum3847.RIOdroid.RIOdroid;
+import org.usfirst.frc.team610.robot.commands.VisionTurret;
 import org.usfirst.frc.team610.robot.vision.VisionServer;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -23,39 +24,39 @@ public class Robot extends IterativeRobot {
 	public void robotInit() {
 		oi = OI.getInstance();
 		RIOdroid.initUSB();
-		
+		vision = new VisionTurret();
 		
 	}
 
 	public void disabledInit() {
-//		vision.cancel();
+		vision.cancel();
 		visionServer = VisionServer.getInstance();
 	}
 
 	public void disabledPeriodic() {
-//		vision.cancel();
+		vision.cancel();
 		Scheduler.getInstance().run();
 	}
 
 	public void autonomousInit() {
-//		vision.cancel();
+		vision.cancel();
 		visionServer = VisionServer.getInstance();
 	}
 
 	public void autonomousPeriodic() {
-//		vision.cancel();
+		vision.cancel();
 		Scheduler.getInstance().run();
 	}
 
 	public void teleopInit() {
 		visionServer = VisionServer.getInstance();
+		vision.start();
 	}
 
 	public void teleopPeriodic() {
 		SmartDashboard.putNumber("Value", visionServer.getDouble());
 		SmartDashboard.putString("Raw", visionServer.getRawInput());
 		Scheduler.getInstance().run();
-		
 	}
 
 	public void testPeriodic() {

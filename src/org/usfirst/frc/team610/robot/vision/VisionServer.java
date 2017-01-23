@@ -65,11 +65,13 @@ public class VisionServer implements Runnable {
 				int read;
 				// Continue while connected and have messages to read
 				while (socket.isConnected() && (read = is.read(buffer)) != -1) {
-					startInput = true;
+					startInput = true;  
 					String messageRaw = new String(buffer, 0, read);
 					rawInput = messageRaw;
 				}
 				System.out.println("Socket disconnected");
+				startInput = false;
+				
 			} catch (IOException e) {
 				System.err.println("Could not talk to socket");
 				socket = null;
@@ -142,8 +144,10 @@ public class VisionServer implements Runnable {
 		while (running) {
 			// If socket is disconnected, attempt to reconnect and start new
 			// ServerThread
+		
 			try {
 				if (p == null) {
+					
 					System.out.println("Attempting to accept socket");
 					p = serverSocket.accept();
 					System.out.println("Socket Accepted!");

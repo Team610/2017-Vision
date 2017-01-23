@@ -16,6 +16,7 @@ public class PID {
 
 	private double output;
 
+	//Initializes a PID object
 	public PID() {
 		e = 0;
 		ePrev = 0;
@@ -26,6 +27,7 @@ public class PID {
 		max = 1e50;
 	}
 
+	//Initializes a PID object with p, i, and d factors
 	public PID(double p, double i, double d) {
 		this();
 		this.p = p;
@@ -33,40 +35,14 @@ public class PID {
 		this.d = d;
 	}
 
+	//Initializes a PID object with p,i,d factors and max and min output values.
 	public PID(double p, double i, double d, double min, double max) {
 		this(p, i, d);
 		this.max = max;
 		this.min = min;
 	}
-
-	public double getValue(double input, double target) {
-		if (curTarget != target) {
-			resetPID();
-			curTarget = target;
-		}
-		e = target - input;
-		eDiff = ePrev - e;
-
-		if (e > 5) {
-			iCounter = 0;
-		} else if (e < -5) {
-			iCounter = 0;
-		} else {
-			iCounter += e;
-		}
-
-		output = e * p + eDiff * d + iCounter * i;
-
-		ePrev = e;
-		if (output > max) {
-			output = max;
-		} else if (output < min) {
-			output = min;
-		}
-
-		return output;
-	}
-
+	
+	//Gets output value from PID loop
 	public double getValue(double input, double target, double feedForward) {
 		if (curTarget != target) {
 			resetPID();
@@ -100,7 +76,8 @@ public class PID {
 
 		return output;
 	}
-
+	
+	//Reset errors for PID
 	public void resetPID() {
 		e = 0;
 		ePrev = 0;
@@ -108,13 +85,15 @@ public class PID {
 		iCounter = 0;
 		output = 0;
 	}
-
+	
+	//Changes the p,i,d factors
 	public void updatePID(double p, double i, double d) {
 		this.p = p;
 		this.i = i;
 		this.d = d;
 	}
 
+	//Gets errors
 	public double getError() {
 		return e;
 	}
