@@ -15,6 +15,7 @@ public class Turret extends Subsystem {
 	
 	private static Turret instance;
 	private Victor motor;
+	private Victor light;
 	private PID visionPID;
 	
 	
@@ -26,16 +27,18 @@ public class Turret extends Subsystem {
 	}
 
 	private Turret(){
-		visionPID = new PID(PIDConstants.VISION_P, 0, PIDConstants.VISION_D);
+		visionPID = new PID(PIDConstants.VISION_P, PIDConstants.VISION_I, PIDConstants.VISION_D);
 		motor = new Victor(0);
+		light = new Victor(1);
 	}
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
 	
 	public void run(){
 		PIDConstants.update();
-		visionPID.updatePID(PIDConstants.VISION_P, 0, PIDConstants.VISION_D);
+		visionPID.updatePID(PIDConstants.VISION_P, PIDConstants.VISION_I, PIDConstants.VISION_D);
 		motor.set(visionPID.getValue(VisionServer.getInstance().getDouble(), 0, 0));
+		light.set(0.5);
 	}
 	
 	public void stop(){

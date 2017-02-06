@@ -29,7 +29,8 @@ public class PIDConstants {
 	public static final double INTAKE_SHOOT_Kp = 0.0005;
 	public static final double INTAKE_SHOOT_Kd = 0.00000;
 	
-	public static double VISION_P = prefs.getDouble("Vision_P", 0.0);
+	public static double VISION_P = prefs.getDouble("Vision_P", -0.050);
+	public static double VISION_I = prefs.getDouble("Vision_I", 0.0);
 	public static double VISION_D = prefs.getDouble("Vision_D", 0.0);
 	
 	public static void update(){
@@ -40,7 +41,8 @@ public class PIDConstants {
 		GYRO_DRIVE_I = prefs.getDouble("Drive_I", 0);
 		ENCODER_Kp = prefs.getDouble("ENCODER_Kp", -0.1);
 		ENCODER_Kd = prefs.getDouble("ENCODER_Kd", 0);
-		VISION_P = prefs.getDouble("Vision_P", 0.0);
+		VISION_P = prefs.getDouble("Vision_P", -0.005);
+		VISION_D = prefs.getDouble("Vision_I", 0.0);
 		VISION_D = prefs.getDouble("Vision_D", 0.0);
 	}
 	

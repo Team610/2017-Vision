@@ -1,5 +1,6 @@
 package org.usfirst.frc.team610.robot.commands;
 
+import org.usfirst.frc.team610.robot.constants.PIDConstants;
 import org.usfirst.frc.team610.robot.subsystems.Turret;
 
 import edu.wpi.first.wpilibj.command.Command;
@@ -23,6 +24,7 @@ public class VisionTurret extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
+    	PIDConstants.update();
     	turret.run();
     }
 

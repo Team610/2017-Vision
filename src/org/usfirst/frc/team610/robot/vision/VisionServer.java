@@ -15,14 +15,12 @@ public class VisionServer implements Runnable {
 	private static VisionServer instance = null;
 	private ServerSocket serverSocket;
 	double lastMessageReceivedTime = 0;
-	private boolean running = true;
 	private volatile boolean wantsAppRestart = false;
 	private Socket p;
 	private String rawInput;
-	private double value;
 	private boolean startInput = false;
+	private ServerThread commThread;
 
-	private ArrayList<ServerThread> serverThreads = new ArrayList<>();
 
 
 	private static final int port = 3000;
@@ -70,6 +68,8 @@ public class VisionServer implements Runnable {
 					rawInput = messageRaw;
 				}
 				System.out.println("Socket disconnected");
+				p = null;
+				commThread = null;
 				startInput = false;
 				
 			} catch (IOException e) {
@@ -84,6 +84,11 @@ public class VisionServer implements Runnable {
 					e.printStackTrace();
 				}
 			}
+		}
+
+		public void close() {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 
@@ -107,7 +112,7 @@ public class VisionServer implements Runnable {
 
 	public String getRawInput() {
 		if(startInput){
-			if(serverThreads.size() == 0){
+			if(commThread == null){
 				return "Socket Not Connected";
 			}
 			return rawInput;
@@ -119,7 +124,7 @@ public class VisionServer implements Runnable {
 	public double getDouble() {
 		String sub = getRawInput();
 		String [] tokens = sub.split("/n");
-		if(tokens[0].charAt(0) < 57 && tokens[0].charAt(0) > 48){
+		if((tokens[0].charAt(0) < 57 && tokens[0].charAt(0) > 48 )|| tokens[0].charAt(0) == 45){
 			return Double.parseDouble(tokens[0]);
 		} else {
 			return 0;
@@ -141,7 +146,7 @@ public class VisionServer implements Runnable {
 		System.out.println("VisionServer thread starting");
 
 		p = null;
-		while (running) {
+		while (true) {
 			// If socket is disconnected, attempt to reconnect and start new
 			// ServerThread
 		
@@ -151,11 +156,9 @@ public class VisionServer implements Runnable {
 					System.out.println("Attempting to accept socket");
 					p = serverSocket.accept();
 					System.out.println("Socket Accepted!");
-
-					ServerThread s = new ServerThread(p);
-					new Thread(s).start();
-					serverThreads.add(s);
-					System.out.println("Created a new thread(total: " + serverThreads.size() + ")");
+					commThread = new ServerThread(p);
+					new Thread(commThread).start();
+					System.out.println("Connected");
 				}
 
 			} catch (IOException e) {
