@@ -119,7 +119,7 @@ public class VisionServer implements Runnable {
 	public double getDouble() {
 		String sub = getRawInput();
 		String [] tokens = sub.split("/n");
-		if(tokens[0].charAt(0) < 57 && tokens[0].charAt(0) > 48){
+		if((tokens[0].charAt(0) < 57 && tokens[0].charAt(0) > 48 )|| tokens[0].charAt(0) == 45){
 			return Double.parseDouble(tokens[0]);
 		} else {
 			return 0;
